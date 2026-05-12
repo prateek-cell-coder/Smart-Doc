@@ -1,0 +1,1 @@
+using SmartDocService as service from '../../srv/service';

@@ -1,0 +1,37 @@
+{
+  "name": "Smart_doc_Ai",
+  "version": "1.0.0",
+  "description": "AI powered document analyzer, translator and Q&A using SAP CAP and OpenAI",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap/cds": "^9",
+    "@sap/xssec": "^4",
+    "dotenv": "^16",
+    "express": "^4",
+    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.6.205"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2",
+    "cds-plugin-ui5": "^0.13.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "watch-project1": "cds watch --open com.bosch.smartdoc.project1/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "[production]": {
+        "auth": "xsuaa"
+      },
+      "connectivity": true,
+      "destinations": true,
+      "html5-repo": true
+    }
+  },
+  "workspaces": [
+    "app/*"
+  ]
+}

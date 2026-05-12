@@ -1,0 +1,284 @@
+<mvc:View
+    controllerName="com.bosch.smartdoc.project1.controller.smartdoc"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:layout="sap.ui.layout"
+    xmlns:u="sap.ui.unified"
+    displayBlock="true">
+
+    <Page id="page" showHeader="false">
+        <VBox class="sapUiResponsiveMargin">
+
+            <!-- TITLE -->
+            <Panel expandable="false">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title text="🧠 Smart Doc AI — Analyzer, Translator &amp; Q&amp;A" level="H2"/>
+                    </Toolbar>
+                </headerToolbar>
+            </Panel>
+
+            <!-- UPLOAD PANEL -->
+            <Panel expandable="false" class="sapUiSmallMarginTop">
+                <headerToolbar>
+                    <Toolbar height="2rem">
+                        <Text text="Upload Document"/>
+                    </Toolbar>
+                </headerToolbar>
+                <VBox class="sapUiSmallMargin">
+                    <Text text="Supported formats: PDF, DOCX, PPTX, XLSX" class="sapUiTinyMarginBottom"/>
+                    <HBox alignItems="Center" class="sapUiSmallMarginTop">
+                        <Button
+                            text="📎 Choose File"
+                            type="Emphasized"
+                            press="onChooseFile"
+                            class="sapUiTinyMarginEnd"/>
+                        <Text id="selectedFileName" text="No file selected"/>
+                    </HBox>
+
+                    <!-- Action Buttons -->
+                    <HBox class="sapUiSmallMarginTop" wrap="Wrap">
+                        <Button
+                            text="🔍 Analyze Document"
+                            type="Emphasized"
+                            press="onAnalyzeDocument"
+                            class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                            enabled="{appModel>/fileSelected}"/>
+                        <Button
+                            text="🌐 Translate to English"
+                            type="Default"
+                            press="onTranslate"
+                            class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                            enabled="{appModel>/documentAnalyzed}"/>
+                        <Button
+                            text="📝 Summarize"
+                            type="Default"
+                            press="onSummarize"
+                            class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                            enabled="{appModel>/documentAnalyzed}"/>
+                    </HBox>
+
+                    <!-- Status Message -->
+                    <HBox id="statusBox" visible="false" class="sapUiSmallMarginTop" alignItems="Center">
+                        <core:Icon
+                            xmlns:core="sap.ui.core"
+                            src="sap-icon://message-success"
+                            color="Positive"
+                            class="sapUiTinyMarginEnd"/>
+                        <Text id="statusText" text=""/>
+                    </HBox>
+                </VBox>
+            </Panel>
+
+            <!-- DETECTED LANGUAGE + EXTRACTED FIELDS -->
+            <Panel
+                id="analysisPanel"
+                expandable="false"
+                visible="{appModel>/documentAnalyzed}"
+                class="sapUiSmallMarginTop">
+                <headerToolbar>
+                    <Toolbar height="2rem">
+                        <Text text="📊 Analysis Results"/>
+                    </Toolbar>
+                </headerToolbar>
+                <VBox class="sapUiSmallMargin">
+                    <HBox class="sapUiTinyMarginBottom">
+                        <Text text="Detected Language: " class="sapUiTinyMarginEnd"/>
+                        <Text id="detectedLang" text="{appModel>/detectedLanguage}" class="sapUiSmallMarginEnd"/>
+                    </HBox>
+
+                    <!-- Extracted Fields Table -->
+                    <Title text="Extracted Key Fields" level="H4" class="sapUiTinyMarginBottom sapUiSmallMarginTop"/>
+                    <Table
+                        id="fieldsTable"
+                        items="{appModel>/extractedFields}"
+                        alternateRowColors="true">
+                        <columns>
+                            <Column width="30%"><Text text="Field Name"/></Column>
+                            <Column width="50%"><Text text="Value"/></Column>
+                            <Column width="20%"><Text text="Type"/></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem>
+                                <cells>
+                                    <Text text="{appModel>fieldName}"/>
+                                    <Text text="{appModel>fieldValue}"/>
+                                    <ObjectStatus
+                                        text="{appModel>fieldType}"
+                                        state="{= ${appModel>fieldType} === 'DATE' ? 'Information' :
+                                               ${appModel>fieldType} === 'AMOUNT' ? 'Success' :
+                                               ${appModel>fieldType} === 'PERSON' ? 'Warning' : 'None'}"/>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+
+                    <!-- ✅ NEW: Export Extracted Fields Button -->
+                    <HBox class="sapUiSmallMarginTop">
+                        <Button
+                            text="⬇ Export Extracted Fields to Excel"
+                            type="Emphasized"
+                            press="onExportFields"
+                            class="sapUiTinyMarginEnd"/>
+                        <Button
+                            text="⬇ Export Summary"
+                            type="Ghost"
+                            press="onExportSummary"
+                            visible="{appModel>/showSummary}"/>
+                    </HBox>
+                </VBox>
+            </Panel>
+
+            <!-- SUMMARY PANEL -->
+            <Panel
+                id="summaryPanel"
+                expandable="false"
+                visible="{appModel>/showSummary}"
+                class="sapUiSmallMarginTop">
+                <headerToolbar>
+                    <Toolbar height="2rem">
+                        <Text text="📝 Document Summary"/>
+                    </Toolbar>
+                </headerToolbar>
+                <VBox class="sapUiSmallMargin">
+                    <Text text="{appModel>/summary}" wrapping="true"/>
+                </VBox>
+            </Panel>
+
+            <!-- TRANSLATION PANEL -->
+            <Panel
+                id="translationPanel"
+                expandable="false"
+                visible="{appModel>/showTranslation}"
+                class="sapUiSmallMarginTop">
+                <headerToolbar>
+                    <Toolbar height="2rem">
+                        <Text text="🌐 Translation (English)"/>
+                    </Toolbar>
+                </headerToolbar>
+                <VBox class="sapUiSmallMargin">
+                    <layout:Grid defaultSpan="L6 M6 S12" hSpacing="1">
+                        <VBox>
+                            <Title text="Original" level="H4" class="sapUiTinyMarginBottom"/>
+                            <TextArea
+                                id="originalText"
+                                value="{appModel>/originalContent}"
+                                rows="15"
+                                width="100%"
+                                editable="false"/>
+                        </VBox>
+                        <VBox>
+                            <Title text="Translated (English)" level="H4" class="sapUiTinyMarginBottom"/>
+                            <TextArea
+                                id="translatedText"
+                                value="{appModel>/translatedContent}"
+                                rows="15"
+                                width="100%"
+                                editable="false"/>
+                        </VBox>
+                    </layout:Grid>
+
+                    <!-- ✅ NEW: Export Translation Button -->
+                    <HBox class="sapUiSmallMarginTop">
+                        <Button
+                            text="⬇ Export Translation to Text File"
+                            type="Ghost"
+                            press="onExportTranslation"
+                            class="sapUiTinyMarginEnd"/>
+                    </HBox>
+                </VBox>
+            </Panel>
+
+            <!-- Q&A PANEL -->
+            <Panel
+                expandable="false"
+                visible="{appModel>/documentAnalyzed}"
+                class="sapUiSmallMarginTop">
+                <headerToolbar>
+                    <Toolbar height="2rem">
+                        <Text text="💬 Ask Questions About Document"/>
+                    </Toolbar>
+                </headerToolbar>
+                <VBox class="sapUiSmallMargin">
+                    <HBox alignItems="Center">
+                        <Input
+                            id="questionInput"
+                            placeholder="Ask anything about the document..."
+                            width="85%"
+                            class="sapUiTinyMarginEnd"
+                            submit="onAskQuestion"/>
+                        <Button
+                            text="Ask"
+                            type="Emphasized"
+                            press="onAskQuestion"/>
+                    </HBox>
+
+                    <!-- Q&A History -->
+                    <List
+                        id="qaList"
+                        items="{appModel>/qaHistory}"
+                        class="sapUiSmallMarginTop"
+                        noDataText="No questions asked yet">
+                        <CustomListItem>
+                            <VBox class="sapUiSmallMargin">
+                                <HBox alignItems="Center">
+                                    <core:Icon
+                                        xmlns:core="sap.ui.core"
+                                        src="sap-icon://person-placeholder"
+                                        color="Highlight"
+                                        class="sapUiTinyMarginEnd"/>
+                                    <Text text="{appModel>question}" wrapping="true" class="sapUiSmallText"/>
+                                </HBox>
+                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                    <core:Icon
+                                        xmlns:core="sap.ui.core"
+                                        src="sap-icon://ai"
+                                        color="Positive"
+                                        class="sapUiTinyMarginEnd"/>
+                                    <Text text="{appModel>answer}" wrapping="true"/>
+                                </HBox>
+                            </VBox>
+                        </CustomListItem>
+                    </List>
+                </VBox>
+            </Panel>
+
+            <!-- DOCUMENT HISTORY -->
+            <Panel expandable="true" expanded="false" class="sapUiSmallMarginTop">
+                <headerToolbar>
+                    <Toolbar height="2rem">
+                        <Text text="📋 Document History"/>
+                    </Toolbar>
+                </headerToolbar>
+                <VBox class="sapUiSmallMargin">
+                    <Table
+                        id="historyTable"
+                        items="{historyModel>/results}"
+                        noDataText="No documents analyzed yet">
+                        <columns>
+                            <Column><Text text="File Name"/></Column>
+                            <Column><Text text="Type"/></Column>
+                            <Column><Text text="Language"/></Column>
+                            <Column><Text text="Status"/></Column>
+                            <Column><Text text="Uploaded At"/></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem press="onSelectHistory" type="Active">
+                                <cells>
+                                    <Text text="{historyModel>fileName}"/>
+                                    <Text text="{historyModel>fileType}"/>
+                                    <Text text="{historyModel>originalLanguage}"/>
+                                    <ObjectStatus
+                                        text="{historyModel>status}"
+                                        state="{= ${historyModel>status} === 'DONE' ? 'Success' : 'Warning'}"/>
+                                    <Text text="{historyModel>createdAt}"/>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+            </Panel>
+
+        </VBox>
+    </Page>
+</mvc:View>

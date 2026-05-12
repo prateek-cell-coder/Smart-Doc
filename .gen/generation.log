@@ -1,0 +1,33 @@
+Starting CAP Project Generator...
+Using @sap/cds-dk [9.8.2] from /extbin/globals/pnpm/5/.pnpm/@sap+cds-dk@9.8.2_@eslint+js@10.0.1/node_modules/@sap/cds-dk
+Using @sap/generator-cap-project [2.0.5] from [/extbin/globals/pnpm/5/.pnpm/@sap+generator-cap-project@2.0.5_encoding@0.1.13_mem-fs@2.1.0_yeoman-environment@3.19.3_@types+node@25.6.0_/node_modules/@sap/generator-cap-project]
+Using root path [/home/user/projects]
+
+Creating project with approuter, connectivity, destination, hana, html5-repo, nodejs, xsuaa
+
+Adding facet: nodejs
+Adding facet: xsuaa
+Adding facet: hana
+Adding facet: approuter
+Adding facet: connectivity
+Adding facet: destination
+Adding facet: html5-repo
+
+Successfully initialized CAP project
+Continue with: code Smart_doc_Ai 
+
+
+Installing dependencies...
+
+added 115 packages, and audited 116 packages in 3s
+
+33 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+Finished installing dependencies
+
+Done setting up project Smart_doc_Ai
+Project is ready to use
+
